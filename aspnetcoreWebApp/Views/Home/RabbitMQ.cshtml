@@ -1,0 +1,309 @@
+﻿@{
+    ViewData["Title"] = "RabbitMQ";
+}
+
+<h2>RabbitMQ</h2>
+
+<div class="panel panel-default">
+    <div class="panel-heading">Simple Queue / Work Queue - 简单队列 / 工作队列</div>
+    <div class="panel-body">
+        <form>
+            <div class="form-group">
+                <label for="txt-message">消息</label>
+                <input type="text" class="form-control" id="txt-message" placeholder="message">
+            </div>
+
+            <div class="form-group">
+                <label for="txt-interval-ms">时间间隔 ms</label>
+                <input type="text" class="form-control" id="txt-interval-ms" placeholder="毫秒">
+            </div>
+            <button id="btn-send" type="button" class="btn btn-default">Send Message</button>
+            <button id="btn-stop" type="button" class="btn btn-default">Stop</button>
+
+        </form>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">Publish / Subscribe - 发布订阅</div>
+    <div class="panel-body">
+        <form>
+            <div class="form-group">
+                <label for="txt-pub-message">消息</label>
+                <input type="text" class="form-control" id="txt-pub-message" placeholder="message">
+            </div>
+
+            <div class="form-group">
+                <label for="txt-pub-interval-ms">时间间隔 ms</label>
+                <input type="text" class="form-control" id="txt-pub-interval-ms" placeholder="毫秒">
+            </div>
+            <button id="btn-pub-send" type="button" class="btn btn-default">Send Message</button>
+            <button id="btn-pub-stop" type="button" class="btn btn-default">Stop</button>
+        </form>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">Routing - 路由</div>
+    <div class="panel-body">
+        <form>
+            <div class="form-group">
+                <label for="txt-pub-routing-message">消息</label>
+                <input type="text" class="form-control" id="txt-pub-routing-message" placeholder="message">
+            </div>
+
+            <div class="form-group">
+                <label for="sel-routing-key">Routing-key</label>
+                <select id="sel-routing-key" class="form-control">
+                    <option value="info">一般消息</option>
+                    <option value="error">错误消息</option>
+                    <option value="warning">警告消息</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="txt-pub-routing-interval-ms">时间间隔 ms</label>
+                <input type="text" class="form-control" id="txt-pub-routing-interval-ms" placeholder="毫秒">
+            </div>
+            <button id="btn-pub-routing-send" type="button" class="btn btn-default">Send Message</button>
+            <button id="btn-pub-routing-stop" type="button" class="btn btn-default">Stop</button>
+        </form>
+    </div>
+</div>
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">Topics - 主题</div>
+    <div class="panel-body">
+        <form>
+            <div class="form-group">
+                <label for="txt-pub-topics-message">消息</label>
+                <input type="text" class="form-control" id="txt-pub-topics-message" placeholder="message">
+            </div>
+
+            <div class="form-group">
+                <label for="txt-topics-key">Topics-key</label>
+                <input type="text" class="form-control" id="txt-topics-key" placeholder="topics key">
+            </div>
+
+            <div class="form-group">
+                <label for="txt-pub-topics-interval-ms">时间间隔 ms</label>
+                <input type="text" class="form-control" id="txt-pub-topics-interval-ms" placeholder="毫秒">
+            </div>
+            <button id="btn-pub-topics-send" type="button" class="btn btn-default">Send Message</button>
+            <button id="btn-pub-topics-stop" type="button" class="btn btn-default">Stop</button>
+        </form>
+    </div>
+</div>
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">消息确认机制 - Transaction 事务模式</div>
+    <div class="panel-body">
+        <form>
+            <div class="form-group">
+                <label for="txt-pub-trans-message">消息</label>
+                <input type="text" class="form-control" id="txt-pub-trans-message" placeholder="message">
+            </div>
+            <button id="btn-pub-trans-send" type="button" class="btn btn-default">Send Message</button>
+            <button id="btn-pub-trans-stop" type="button" class="btn btn-default">Stop</button>
+        </form>
+    </div>
+</div>
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">消息确认机制 - Confirm 确认模式</div>
+    <div class="panel-body">
+        <form>
+            <div class="form-group">
+                <label for="txt-pub-confirm-message">消息</label>
+                <input type="text" class="form-control" id="txt-pub-confirm-message" placeholder="message">
+            </div>
+            <button id="btn-pub-confirm-send" type="button" class="btn btn-default">Send Message</button>
+            <button id="btn-pub-confirm-stop" type="button" class="btn btn-default">Stop</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+
+<script type="text/javascript">
+
+    var sendMsgInterval;
+
+    $(function () {
+
+        // simple queue / work queue
+        $('#btn-send').click(function () {
+            //sendMsgInterval = window.setInterval(function () {
+            //    $('#txt-message').val(randStr(200));
+            //    sendMSG();
+            //}, $('#txt-interval-ms').val());
+
+            for (var i = 0; i < 20; i++) {
+                $('#txt-message').val((i + 1));
+                sendMSG();
+            }
+        });
+
+        // simple queue / work queue
+        $('#btn-stop').click(function () {
+            clearInterval(sendMsgInterval);
+        });
+
+        // publish / subscribe
+        $('#btn-pub-send').click(function () {
+            sendChannelMSG();
+        });
+
+        // routing
+        $('#btn-pub-routing-send').click(function () {
+            sendRoutingMSG();
+        });
+
+        // topics
+        $('#btn-pub-topics-send').click(function () {
+            sendTopicsMSG();
+        });
+
+        // transaction
+        $('#btn-pub-trans-send').click(function () {
+            sendTransactionMSG();
+        });
+
+        // confirm
+        $('#btn-pub-confirm-send').click(function () {
+            SendConfirmMSG();
+        });
+    });
+
+    function sendMSG() {
+        var message = $('#txt-message').val();
+
+        if (!message || !message.trim()) {
+
+            alert('消息不能为空');
+            return;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "/home/SendMQ",
+            data: "message=" + message,
+            success: function (ret) {
+                console.log(ret);
+            }
+        });
+    }
+
+    function sendChannelMSG() {
+        var message = $('#txt-pub-message').val();
+
+        if (!message || !message.trim()) {
+
+            alert('消息不能为空');
+            return;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "/home/SendChannelMQ",
+            data: "message=" + message,
+            success: function (ret) {
+                console.log(ret);
+            }
+        });
+    }
+
+    function sendRoutingMSG() {
+        var message = $('#txt-pub-routing-message').val();
+        var routingKey = $('#sel-routing-key').val();
+
+        if (!message || !message.trim()) {
+
+            alert('消息不能为空');
+            return;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "/home/SendChannelRoutingMQ",
+            data: "message=" + message + "&routingKey=" + routingKey,
+            success: function (ret) {
+                console.log(ret);
+            }
+        });
+    }
+
+    function sendTopicsMSG() {
+        var message = $('#txt-pub-topics-message').val();
+        var routingKey = $('#txt-topics-key').val();
+
+        if (!message || !message.trim()) {
+
+            alert('消息不能为空');
+            return;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "/home/SendChannelTopicsMQ",
+            data: "message=" + message + "&routingKey=" + routingKey,
+            success: function (ret) {
+                console.log(ret);
+            }
+        });
+    }
+
+    function sendTransactionMSG() {
+        var message = $('#txt-pub-trans-message').val();
+
+        if (!message || !message.trim()) {
+
+            alert('消息不能为空');
+            return;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "/home/SendTransactionMQ",
+            data: "message=" + message,
+            success: function (ret) {
+                console.log(ret);
+            }
+        });
+    }
+
+    function SendConfirmMSG() {
+
+        var message = $('#txt-pub-confirm-message').val();
+
+        if (!message || !message.trim()) {
+
+            alert('消息不能为空');
+            return;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "/home/SendConfirmMQ",
+            data: "message=" + message,
+            success: function (ret) {
+                console.log(ret);
+            }
+        });
+    }
+
+    function randStr(a) {
+        var d,
+            e,
+            b = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
+            c = "";
+        for (d = 0; a > d; d += 1)
+            e = Math.random() * b.length, e = Math.floor(e), c += b.charAt(e);
+        return c
+    }
+</script>
+}
+
